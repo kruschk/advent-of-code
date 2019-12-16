@@ -1,0 +1,72 @@
+   Compiling day5 v0.1.0 (/home/jonah/code/advent_of_code/2019/day5)
+error: expected one of `,`, `.`, `?`, `}`, or an operator, found `OpCodeType`
+  --> src/main.rs:81:13
+   |
+76 |             OpCodeType::TestLessThan => Instruction::TestLessThan {
+   |                                      -- while parsing the `match` arm starting here
+...
+80 |             }
+   |              - expected one of `,`, `.`, `?`, `}`, or an operator here
+81 |             OpCodeType::TestEqual => Instruction::TestEqual {
+   |             ^^^^^^^^^^ unexpected token
+
+error[E0599]: no variant or associated item named `JumpIfFalse` found for type `OpCodeType` in the current scope
+   --> src/main.rs:57:25
+    |
+57  |             OpCodeType::JumpIfFalse => Instruction::JumpIfFalse {
+    |                         ^^^^^^^^^^^ variant or associated item not found in `OpCodeType`
+...
+146 | enum OpCodeType {
+    | --------------- variant or associated item `JumpIfFalse` not found here
+
+error[E0599]: no variant or associated item named `JumpIfTrue` found for type `OpCodeType` in the current scope
+   --> src/main.rs:61:25
+    |
+61  |             OpCodeType::JumpIfTrue => Instruction::JumpIfTrue {
+    |                         ^^^^^^^^^^ variant or associated item not found in `OpCodeType`
+...
+146 | enum OpCodeType {
+    | --------------- variant or associated item `JumpIfTrue` not found here
+
+error[E0599]: no variant or associated item named `JumpIfTrue` found for type `OpCodeType` in the current scope
+   --> src/main.rs:111:31
+    |
+111 |              5 => OpCodeType::JumpIfTrue,
+    |                               ^^^^^^^^^^ variant or associated item not found in `OpCodeType`
+...
+146 | enum OpCodeType {
+    | --------------- variant or associated item `JumpIfTrue` not found here
+
+error[E0599]: no variant or associated item named `JumpIfFalse` found for type `OpCodeType` in the current scope
+   --> src/main.rs:112:31
+    |
+112 |              6 => OpCodeType::JumpIfFalse,
+    |                               ^^^^^^^^^^^ variant or associated item not found in `OpCodeType`
+...
+146 | enum OpCodeType {
+    | --------------- variant or associated item `JumpIfFalse` not found here
+
+error[E0599]: no variant or associated item named `TestLessThan` found for type `OpCodeType` in the current scope
+   --> src/main.rs:113:31
+    |
+113 |              7 => OpCodeType::TestLessThan,
+    |                               ^^^^^^^^^^^^ variant or associated item not found in `OpCodeType`
+...
+146 | enum OpCodeType {
+    | --------------- variant or associated item `TestLessThan` not found here
+
+error[E0599]: no variant or associated item named `TestEqual` found for type `OpCodeType` in the current scope
+   --> src/main.rs:114:31
+    |
+114 |              8 => OpCodeType::TestEqual,
+    |                               ^^^^^^^^^ variant or associated item not found in `OpCodeType`
+...
+146 | enum OpCodeType {
+    | --------------- variant or associated item `TestEqual` not found here
+
+error: aborting due to 7 previous errors
+
+For more information about this error, try `rustc --explain E0599`.
+error: Could not compile `day5`.
+
+To learn more, run the command again with --verbose.

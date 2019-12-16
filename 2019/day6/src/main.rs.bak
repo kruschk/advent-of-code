@@ -1,0 +1,151 @@
+use std::{
+    cell::RefCell,
+    collections::HashSet,
+    fs::File,
+    hash::{Hash, Hasher},
+    io::{
+        prelude::*,
+        BufReader
+    },
+    ops::Deref,
+    path::Path,
+    rc::Rc,
+};
+
+#[derive(Debug)]
+struct HeavenlyBody {
+    name: String,
+    depth: Option<usize>,
+    children: Vec<HashingRcRefCell<HeavenlyBody>>,
+}
+
+impl Hash for HeavenlyBody {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+        self.depth.hash(state);
+    }
+}
+
+impl PartialEq for HeavenlyBody {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name && self.depth == other.depth
+    }
+}
+
+impl Eq for HeavenlyBody {}
+
+impl HeavenlyBody {
+    fn new(name: String) -> HeavenlyBody {
+        Self {
+            name,
+            depth: None,
+            children: Vec::new(),
+        }
+    }
+
+    fn add_child(&mut self, hb: HashingRcRefCell<HeavenlyBody>) {
+        self.children.push(hb);
+    }
+}
+
+#[derive(Debug, Eq, PartialEq)]
+struct HashingRcRefCell<T>(Rc<RefCell<T>>);
+
+impl<T> From<Rc<RefCell<T>>> for HashingRcRefCell<T> {
+    fn from(val: Rc<RefCell<T>>) -> Self {
+        HashingRcRefCell(val)
+    }
+}
+
+impl<T> Deref for HashingRcRefCell<T> {
+    type Target = RefCell<T>;
+    fn deref(&self) -> &RefCell<T> {
+        &self.0
+    }
+}
+
+impl<T: Eq + Hash> Hash for HashingRcRefCell<T> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.borrow().hash(state)
+    }
+}
+
+impl<T> HashingRcRefCell<T> {
+    fn new(contents: T) -> HashingRcRefCell<T> {
+        HashingRcRefCell(Rc::new(RefCell::new(contents)))
+    }
+}
+
+fn set_depths(root: &HashingRcRefCell<HeavenlyBody>, depth: usize) {
+    let mut current = root.borrow_mut();
+    current.depth = Some(depth);
+    for hb in current.children.iter() {
+        set_depths(&hb, depth + 1);
+    }
+}
+
+fn orbit_checksum(root: &HashingRcRefCell<HeavenlyBody>) -> usize {
+    let current = root.borrow();
+    let mut acc = 0;
+    for hb in current.children.iter() {
+        acc += orbit_checksum(&hb);
+    }
+    return acc + current.depth.unwrap();
+}
+
+fn orbit_checksum_driver(path: &Path) -> usize {
+    let f = File::open(path).unwrap();
+    let f = BufReader::new(f);
+    let mut hs = HashSet::<HashingRcRefCell<HeavenlyBody>>::new();
+    for line in f.lines() {
+        let line = line.unwrap();
+        let mut iterator = line.split(')');
+        let parent = HashingRcRefCell::new(
+            HeavenlyBody::new(
+                iterator.next().unwrap().into()));
+        let child = HashingRcRefCell::new(
+            HeavenlyBody::new(
+                iterator.next().unwrap().into()));
+        if let Some(entry) = hs.get(&parent) {
+            entry.borrow_mut().add_child(child.0.clone().into());
+        } else {
+            parent.borrow_mut().add_child(child.0.clone().into());
+            hs.insert(HashingRcRefCell::from(parent));
+        }
+        if let None = hs.get(&child) {
+            hs.insert(HashingRcRefCell::from(child));
+        }
+    }
+    let mut root = None;
+    for key in hs.iter() {
+        let hb = key.borrow();
+        if "COM" == hb.name {
+            root = Some(key);
+            break;
+        }
+    }
+    set_depths(&root.unwrap(), 0);
+    for key in hs.iter() {
+        let hb = key.borrow();
+        println!("{}, {:?}", hb.name, hb.depth);
+        for j in hb.children.iter() {
+            println!("\t{}, {:?}", j.borrow().name, j.borrow().depth);
+        }
+    }
+    orbit_checksum(&root.unwrap())
+}
+
+fn main() {
+    let result = orbit_checksum_driver(Path::new("input.txt"));
+    println!("{}", result);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test1() {
+        assert_eq!(42, orbit_checksum_driver(Path::new("test0.txt")));
+    }
+}

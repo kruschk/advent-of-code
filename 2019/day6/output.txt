@@ -1,0 +1,42 @@
+    Checking day6 v0.1.0 (/home/jonah/code/advent_of_code/2019/day6)
+error: you are implementing `Hash` explicitly but have derived `PartialEq`
+  --> src/main.rs:21:1
+   |
+21 | / impl Hash for HeavenlyBody {
+22 | |     fn hash<H: Hasher>(&self, state: &mut H) {
+23 | |         self.name.hash(state);
+24 | |         self.depth.hash(state);
+25 | |     }
+26 | | }
+   | |_^
+   |
+   = note: `#[deny(clippy::derive_hash_xor_eq)]` on by default
+note: `PartialEq` implemented here
+  --> src/main.rs:14:21
+   |
+14 | #[derive(Debug, Eq, PartialEq)]
+   |                     ^^^^^^^^^
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#derive_hash_xor_eq
+
+warning: identical conversion
+  --> src/main.rs:77:43
+   |
+77 |             parent.borrow_mut().add_child(child.clone().into());
+   |                                           ^^^^^^^^^^^^^^^^^^^^ help: consider removing `.into()`: `child.clone()`
+   |
+   = note: `#[warn(clippy::identity_conversion)]` on by default
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#identity_conversion
+
+warning: identical conversion
+  --> src/main.rs:83:43
+   |
+83 |             parent.borrow_mut().add_child(child.clone().into());
+   |                                           ^^^^^^^^^^^^^^^^^^^^ help: consider removing `.into()`: `child.clone()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#identity_conversion
+
+error: aborting due to previous error
+
+error: Could not compile `day6`.
+
+To learn more, run the command again with --verbose.
